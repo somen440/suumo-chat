@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!-- Copyright 2019 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. -->
+
+<!-- [START getting_started_background_js] -->
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translations</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#translate-form").submit(function(e) {
+                e.preventDefault();
+                // Get value, make sure it's not empty.
+                if ($("#v").val() == "") {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/request-translation",
+                    data: {
+                        v: $("#v").val(),
+                        lang: "en"
+                    },
+                    success: function(data) {
+                        // Show snackbar.
+                        console.log(data);
+                        var notification = document.querySelector('.mdl-js-snackbar');
+                        $("#snackbar").removeClass("mdl-color--red-100");
+                        $("#snackbar").addClass("mdl-color--green-100");
+                        notification.MaterialSnackbar.showSnackbar({
+                            message: 'Translation requested'
+                        });
+                    },
+                    error: function(data) {
+                        // Show snackbar.
+                        console.log("Error requesting translation");
+                        var notification = document.querySelector('.mdl-js-snackbar');
+                        $("#snackbar").removeClass("mdl-color--green-100");
+                        $("#snackbar").addClass("mdl-color--red-100");
+                        notification.MaterialSnackbar.showSnackbar({
+                            message: 'Translation request failed'
+                        });
+                    }
+                });
+            });
+
+            $(".original").hide();
+            $("#translated-btn").prop('disabled', true);
+            $("#original-btn").on('click', function(e) {
+                $(".translated").hide();
+                $(".original").show();
+                $("#original-btn").prop('disabled', true);
+                $("#translated-btn").prop('disabled', false);
+            });
+            $("#translated-btn").on('click', function(e) {
+                $(".original").hide();
+                $(".translated").show();
+                $("#original-btn").prop('disabled', false);
+                $("#translated-btn").prop('disabled', true);
+            });
+        });
+    </script>
+    <style>
+        .lang {
+            width: 50px;
+        }
+        .translate-form {
+            display: inline;
+        }
+    </style>
+</head>
+<!-- [END getting_started_background_js] -->
+<!-- [START getting_started_background_html] -->
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <!-- Title -->
+                <span class="mdl-layout-title">スーモチャット</span>
+            </div>
+        </header>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <div class="mdl-grid">
+                    <div class="mdl-cell mdl-cell--１１-col">
+                        {{range .}}
+                        <p>
+                            <span class="mdl-chip mdl-chip--contact">
+                                <img
+                                    class="mdl-chip__contact" 
+                                    src="//pbs.twimg.com/profile_images/1204690032298061825/4nPaQbfG_400x400.jpg"
+                                ></img>
+                                <span class="mdl-chip__text original">
+                                    {{ .Original }}
+                                </span>
+                                <span class="mdl-chip__text translated">
+                                    {{ .Translated }}
+                                </span>
+                            </span>
+                            <br>
+                            {{ .CreatedAt | formatToAsia }}
+                        </p>
+                        {{end}}
+                        </br>
+                        <p>日本語を入力したらスーモ語になるよ♪</p>
+                        <form id="translate-form">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" name="v" id="v">
+                                <label class="mdl-textfield__label" for="v">Text...</label>
+                            </div>
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">
+                                <i class="material-icons">send</i> Send
+                            </button>
+                        </form>
+                        <br>
+                        <button class="mdl-button mdl-js-button mdl-button--icon" onclick="window.location.reload();">
+                            <i class="material-icons">refresh</i>
+                        </button>
+                        <!-- Mini FAB button -->
+                        <button id="translated-btn" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab">
+                            表
+                        </button>
+                        <!-- Colored mini FAB button -->
+                        <button id="original-btn" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored">
+                            裏
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar" id="snackbar">
+                <div class="mdl-snackbar__text mdl-color-text--black"></div>
+                <button type="button" class="mdl-snackbar__action"></button>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+<!-- [END getting_started_background_html] -->
